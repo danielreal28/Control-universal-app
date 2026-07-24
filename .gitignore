@@ -1,0 +1,16 @@
+# Certificados de pairing (privados por cada usuario/TV, no deben subirse)
+certs/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Logs
+log.txt
+*.log
+
+# Sistema
+.DS_Store
+Thumbs.db

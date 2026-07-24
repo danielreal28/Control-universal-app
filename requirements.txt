@@ -1,0 +1,4 @@
+androidtvremote2
+flask
+flask-cors
+zeroconf
