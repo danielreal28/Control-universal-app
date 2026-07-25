@@ -28,10 +28,20 @@ jobs:
         run: |
           npm install
 
-      - name: Sync Capacitor
+      - name: Prepare web assets and Sync Capacitor
         run: |
+          # 1. Crear directorio www y copiar assets
+          mkdir -p www
+          cp -r index.html css js assets www/ 2>/dev/null || cp index.html www/
+          
+          # 2. Corregir configuracion de webDir a www
+          if [ -f "capacitor.config.json" ]; then
+            sed -i 's/"webDir": "\."/"webDir": "www"/g' capacitor.config.json
+          fi
+
+          # 3. Dar permisos al binario y sincronizar
           chmod +x ./node_modules/.bin/cap || true
-          npx @capacitor/cli sync android || npx @capacitor/cli add android
+          npx @capacitor/cli sync android
 
       - name: Build APK with Gradle
         run: |
