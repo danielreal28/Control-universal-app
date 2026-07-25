@@ -8,10 +8,8 @@
 <meta name="author" content="DanielReal" />
 <meta name="copyright" content="© DanielReal 2026. Todos los derechos reservados." />
 
-<!-- Tailwind CDN -->
 <script src="https://cdn.tailwindcss.com"></script>
 
-<!-- Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -84,23 +82,14 @@
     -webkit-backdrop-filter: blur(24px);
   }
 
-  .grad-text{
-    background: var(--grad);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-  }
   .grad-bg{ background: var(--grad); }
-
   .btn-press{ transition: transform .12s ease, box-shadow .12s ease, background .12s ease; }
   .btn-press:active{ transform: scale(0.90); }
-
   .key{ -webkit-user-select:none; user-select:none; }
 
   .pulse-ring{
     position:absolute; inset:-10px; border-radius:9999px;
-    background: var(--grad);
-    opacity:0; filter: blur(14px);
+    background: var(--grad); opacity:0; filter: blur(14px);
     animation: pulse 2.4s ease-in-out infinite;
   }
   .pulse-ring.active{ opacity:.55; }
@@ -129,7 +118,6 @@
   @keyframes toastOut{ to{ opacity:0; transform: translate(-50%, -6px);} }
 
   input[type="text"]::placeholder{ color: rgba(255,255,255,0.35); }
-
   .safe-bottom{ padding-bottom: env(safe-area-inset-bottom, 0px); }
   .safe-top{ padding-top: env(safe-area-inset-top, 0px); }
 </style>
@@ -148,7 +136,7 @@
         <span id="statusDot" class="dot-status off w-2.5 h-2.5 rounded-full bg-[#8C93A6] shrink-0"></span>
         <div class="min-w-0">
           <p id="statusTitle" class="text-sm font-semibold leading-tight truncate">Sin conexión</p>
-          <p id="statusSubtitle" class="text-[11px] text-[#8C93A6] leading-tight truncate">Toca ⚙ para vincular tu TV</p>
+          <p id="statusSubtitle" class="text-[11px] text-[#8C93A6] leading-tight truncate">Toca ⚙ para buscar tu TV</p>
         </div>
       </div>
       <button id="openSettings" class="btn-press key w-9 h-9 rounded-full glass flex items-center justify-center shrink-0" aria-label="Ajustes de conexión">
@@ -242,12 +230,6 @@
       </div>
     </div>
 
-    <p class="text-center text-[10.5px] leading-relaxed text-[#5C6478] px-2">
-      Este control habla directo con tu Android TV vía el servidor local
-      (<code>backend.py</code>), usando el protocolo real de control remoto —
-      no Google Cast — así que nunca oculta el contenido de la TV.
-    </p>
-
     <p class="text-center text-[10px] text-[#3A4053] pt-2 pb-1">
       ZonaTrialApp · © DanielReal 2026 · Todos los derechos reservados
     </p>
@@ -272,35 +254,22 @@
         </button>
       </div>
 
-      <!-- Servidor -->
-      <div class="flex flex-col gap-2.5">
-        <p class="text-[11px] font-semibold tracking-wide text-[#8C93A6]">SERVIDOR (backend.py)</p>
-        <input id="backendInput" type="text" inputmode="url" placeholder="http://192.168.1.10:5005"
-          class="w-full glass rounded-xl px-4 py-3 text-sm outline-none focus:border-violet/60 border border-transparent transition-colors" />
-        <p class="text-[10.5px] leading-relaxed text-[#5C6478]">
-          IP local de la PC/dispositivo donde corre <code>backend.py</code>, seguida de <code>:5005</code>.
-          Todos los celulares deben estar en la misma WiFi que ese servidor.
-        </p>
-      </div>
-
-      <div class="h-px bg-white/10"></div>
-
       <!-- Paso 1: Buscar / IP -->
       <div class="flex flex-col gap-2.5">
-        <p class="text-[11px] font-semibold tracking-wide text-[#8C93A6]">1. ENCONTRAR TU ANDROID TV</p>
+        <p class="text-[11px] font-semibold tracking-wide text-[#8C93A6]">1. BUSCAR TV EN TU RED WI-FI</p>
         <button id="discoverBtn" class="btn-press key glass rounded-xl py-3 text-sm font-medium text-[#F4F5F7] flex items-center justify-center gap-2">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-          Buscar TV / Servidor en mi red
+          Escanear red local
         </button>
         <div id="discoverResults" class="hidden flex flex-col gap-2"></div>
-        <p class="text-[10.5px] text-[#5C6478]">o si ya la conoces, escribe la IP directamente:</p>
+        <p class="text-[10.5px] text-[#5C6478]">o escribe la IP de tu TV manualmente:</p>
         <input id="ipInput" type="text" inputmode="decimal" placeholder="192.168.1.42"
           class="w-full glass rounded-xl px-4 py-3 text-sm outline-none focus:border-violet/60 border border-transparent transition-colors" />
       </div>
 
       <!-- Paso 2: Pairing -->
       <div class="flex flex-col gap-2.5">
-        <p class="text-[11px] font-semibold tracking-wide text-[#8C93A6]">2. VINCULACIÓN (SOLO LA PRIMERA VEZ)</p>
+        <p class="text-[11px] font-semibold tracking-wide text-[#8C93A6]">2. VINCULACIÓN (PRIMERA VEZ)</p>
         <button id="pairStartBtn" class="btn-press key glass rounded-xl py-3 text-sm font-medium text-[#F4F5F7]">Pedir código en pantalla</button>
         <input id="codeInput" type="text" inputmode="numeric" placeholder="Código de 6 dígitos"
           class="hidden w-full glass rounded-xl px-4 py-3 text-sm outline-none focus:border-violet/60 border border-transparent transition-colors" />
@@ -310,10 +279,8 @@
       <!-- Paso 3: Conectar -->
       <div class="flex flex-col gap-2.5">
         <p class="text-[11px] font-semibold tracking-wide text-[#8C93A6]">3. CONECTAR</p>
-        <button id="connectBtn" class="btn-press key grad-bg rounded-xl py-3 text-sm font-display font-semibold text-[#0B0E17]">Conectar</button>
-        <p id="pairStatus" class="text-[10.5px] leading-relaxed text-[#5C6478]">
-          Requiere tener corriendo <code>backend.py</code> en tu máquina (puerto 5005).
-        </p>
+        <button id="connectBtn" class="btn-press key grad-bg rounded-xl py-3 text-sm font-display font-semibold text-[#0B0E17]">Conectar a la TV</button>
+        <p id="pairStatus" class="text-[10.5px] leading-relaxed text-[#5C6478]"></p>
       </div>
     </div>
   </div>
@@ -323,21 +290,8 @@
 (function(){
   "use strict";
 
-  // Detección e inicialización dinámica de la IP del Servidor
-  function getInitialBackendURL() {
-    const savedUrl = localStorage.getItem('backend_url');
-    if (savedUrl && !savedUrl.includes('localhost')) {
-      return savedUrl;
-    }
-    // Si la IP de la ventana/dispositivo no es localhost, usa la subred actual del dispositivo
-    const currentHost = window.location.hostname;
-    if (currentHost && currentHost !== 'localhost' && currentHost !== '127.0.0.1') {
-      return `http://${currentHost}:5005`;
-    }
-    return 'http://192.168.1.10:5005';
-  }
-
-  let BACKEND = getInitialBackendURL();
+  // El backend siempre vive dentro del propio teléfono
+  const BACKEND = 'http://127.0.0.1:5005';
 
   const state = {
     connected: false,
@@ -412,33 +366,6 @@
     }
   }
 
-  /* ---------------- Auto-escaneo de Backend Local ---------------- */
-  async function scanForBackendServer() {
-    const baseIpMatch = BACKEND.match(/http:\/\/(\d+\.\d+\.\d+\.)\d+:5005/);
-    const prefix = baseIpMatch ? baseIpMatch[1] : '192.168.1.';
-    
-    // Probar las IPs del segmento local en segundo plano
-    const promises = [];
-    for (let i = 1; i <= 254; i++) {
-      const testIp = `http://${prefix}${i}:5005`;
-      promises.push(
-        fetch(testIp + '/discover', { signal: AbortSignal.timeout(1500) })
-          .then(res => res.ok ? testIp : null)
-          .catch(() => null)
-      );
-    }
-    const results = await Promise.all(promises);
-    const foundServer = results.find(url => url !== null);
-    if (foundServer) {
-      BACKEND = foundServer;
-      localStorage.setItem('backend_url', foundServer);
-      el('backendInput').value = foundServer;
-      return true;
-    }
-    return false;
-  }
-
-  /* ---------------- D-pad / botones -> backend real ---------------- */
   document.querySelectorAll('[data-key]').forEach(btn => {
     btn.addEventListener('click', async () => {
       vibrate(12);
@@ -464,14 +391,12 @@
 
       try {
         await apiCall('/key', { ip: state.ip, key });
-        showToast(key.replace('DPAD_', '').replace('_', ' '));
       } catch(err){
-        showToast('Error de conexión con el servidor');
+        showToast('Error de conexión interna');
       }
     });
   });
 
-  /* ---------------- Apps ---------------- */
   document.querySelectorAll('[data-app-link]').forEach(btn => {
     btn.addEventListener('click', async () => {
       vibrate(14);
@@ -492,7 +417,6 @@
     });
   });
 
-  /* ---------------- Power ---------------- */
   el('powerBtn').addEventListener('click', async () => {
     vibrate(20);
     if (!state.connected){
@@ -507,7 +431,6 @@
     }
   });
 
-  /* ---------------- Modal ---------------- */
   function openModal(){ settingsModal.classList.remove('hidden'); }
   function closeModal(){ settingsModal.classList.add('hidden'); }
   el('openSettings').addEventListener('click', openModal);
@@ -515,43 +438,22 @@
   el('modalBackdrop').addEventListener('click', closeModal);
 
   if (state.ip) ipInput.value = state.ip;
-  el('backendInput').value = BACKEND;
-  el('backendInput').addEventListener('change', () => {
-    const val = el('backendInput').value.trim().replace(/\/$/, '');
-    if (!val) return;
-    BACKEND = val;
-    localStorage.setItem('backend_url', val);
-    showToast('Servidor guardado: ' + val);
-  });
 
   el('discoverBtn').addEventListener('click', async () => {
     const btn = el('discoverBtn');
     const results = el('discoverResults');
-    btn.textContent = 'Buscando servidor y TVs en la red…';
+    btn.textContent = 'Buscando TVs en la red Wi-Fi…';
     btn.disabled = true;
     results.classList.add('hidden');
     results.innerHTML = '';
 
     try {
-      // Primero asegurar que tenemos la IP correcta del backend en la red
-      let res;
-      try {
-        res = await fetch(BACKEND + '/discover', { signal: AbortSignal.timeout(3000) });
-      } catch(e) {
-        showToast('Buscando servidor backend en tu WiFi...');
-        const found = await scanForBackendServer();
-        if (found) {
-          res = await fetch(BACKEND + '/discover');
-        } else {
-          throw new Error('No se encontró el servidor backend.py en tu WiFi.');
-        }
-      }
-
+      const res = await fetch(BACKEND + '/discover', { signal: AbortSignal.timeout(5000) });
       const data = await res.json();
       const devices = data.devices || [];
 
       if (devices.length === 0){
-        showToast('No se encontró ninguna Android TV. Prueba con la IP manual.');
+        showToast('No se encontró ninguna Android TV. Escribe la IP manualmente.');
       } else {
         devices.forEach(dev => {
           const item = document.createElement('button');
@@ -567,23 +469,22 @@
         showToast(`Se encontraron ${devices.length} TV(s)`);
       }
     } catch(err){
-      showToast(err.message);
+      showToast('Asegúrate de conceder permisos de red a la App.');
     } finally {
-      btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg> Buscar TV / Servidor en mi red';
+      btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg> Escanear red local';
       btn.disabled = false;
     }
   });
 
   el('pairStartBtn').addEventListener('click', async () => {
     const ip = ipInput.value.trim();
-    const ipRegex = /^(\d{1,3}\.){3}\d{1,3}$/;
-    if (!ipRegex.test(ip)){
-      showToast('Ingresa una IP válida');
+    if (!ip){
+      showToast('Ingresa la IP de tu TV');
       return;
     }
     state.ip = ip;
     localStorage.setItem('tv_ip', ip);
-    pairStatus.textContent = 'Pidiendo código, revisa la pantalla de tu TV…';
+    pairStatus.textContent = 'Pidiendo código a la TV…';
     try {
       await apiCall('/pair/start', { ip });
       codeInput.classList.remove('hidden');
@@ -597,12 +498,12 @@
   el('pairFinishBtn').addEventListener('click', async () => {
     const code = codeInput.value.trim();
     if (!code){
-      showToast('Escribe el código mostrado en la TV');
+      showToast('Escribe el código de la TV');
       return;
     }
     try {
       await apiCall('/pair/finish', { ip: state.ip, code });
-      pairStatus.textContent = '¡Vinculado! Ahora toca "Conectar".';
+      pairStatus.textContent = '¡Vinculado correctamente!';
       showToast('Pairing completado');
     } catch(err){
       pairStatus.textContent = 'Error: ' + err.message;
@@ -611,9 +512,8 @@
 
   el('connectBtn').addEventListener('click', async () => {
     const ip = ipInput.value.trim();
-    const ipRegex = /^(\d{1,3}\.){3}\d{1,3}$/;
-    if (!ipRegex.test(ip)){
-      showToast('Ingresa una IP válida');
+    if (!ip){
+      showToast('Ingresa la IP de tu TV');
       return;
     }
     state.ip = ip;
@@ -629,7 +529,6 @@
     }
   });
 
-  /* ---------------- Init ---------------- */
   renderStatus();
 })();
 </script>
