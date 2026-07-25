@@ -23,12 +23,17 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
 
+      - name: Preparar archivos web
+        run: |
+          mkdir -p www
+          cp index.html www/
+
       - name: Instalar dependencias globales y Capacitor
         run: |
           npm install -g @capacitor/cli @capacitor/core
           npm init -y
           npm install @capacitor/android
-          npx cap init ZonaTrialApp com.zonatrial.app --web-dir .
+          npx cap init ZonaTrialApp com.zonatrial.app --web-dir www
 
       - name: Empaquetar backend local y proyecto
         run: |
