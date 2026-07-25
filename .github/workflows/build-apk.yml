@@ -1,53 +1,50 @@
-name: Build Android APK
+name: Compilar APK Autónoma
 
 on:
   push:
-    branches: [ main ]
+    branches: [ "main", "master" ]
   workflow_dispatch:
 
 jobs:
-  build:
+  build-android:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
+      - name: Checkout del repositorio
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
+      - name: Configurar Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 18
 
-      - name: Set up JDK 21
+      - name: Configurar Java JDK 17
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
-          java-version: '21'
+          java-version: '17'
 
-      - name: Install dependencies
+      - name: Instalar dependencias globales y Capacitor
         run: |
-          npm install
+          npm install -g @capacitor/cli @capacitor/core
+          npm init -y
+          npm install @capacitor/android
+          npx cap init ZonaTrialApp com.zonatrial.app --web-dir .
 
-      - name: Prepare web assets and Sync Capacitor
+      - name: Empaquetar backend local y proyecto
         run: |
-          mkdir -p www
-          cp -r index.html css js assets www/ 2>/dev/null || cp index.html www/
-          
-          if [ -f "capacitor.config.json" ]; then
-            sed -i 's/"webDir": "\."/"webDir": "www"/g' capacitor.config.json
-          fi
+          npx cap add android
+          npx cap sync android
 
-          chmod +x ./node_modules/.bin/cap || true
-          npx @capacitor/cli sync android
+      - name: Otorgar permisos a Gradle
+        run: chmod +x android/gradlew
 
-      - name: Build APK with Gradle
+      - name: Compilar APK (Release / Debug)
         run: |
           cd android
-          chmod +x gradlew
           ./gradlew assembleDebug
 
-      - name: Upload APK Artifact
+      - name: Subir APK como Artefacto listo para descargar
         uses: actions/upload-artifact@v4
         with:
-          name: Control-Universal-APK
+          name: ZonaTrialApp-Control-TV
           path: android/app/build/outputs/apk/debug/app-debug.apk
