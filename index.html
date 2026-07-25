@@ -290,7 +290,7 @@
         <p class="text-[11px] font-semibold tracking-wide text-[#8C93A6]">1. ENCONTRAR TU ANDROID TV</p>
         <button id="discoverBtn" class="btn-press key glass rounded-xl py-3 text-sm font-medium text-[#F4F5F7] flex items-center justify-center gap-2">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-          Buscar TV en mi red
+          Buscar TV / Servidor en mi red
         </button>
         <div id="discoverResults" class="hidden flex flex-col gap-2"></div>
         <p class="text-[10.5px] text-[#5C6478]">o si ya la conoces, escribe la IP directamente:</p>
@@ -323,7 +323,21 @@
 (function(){
   "use strict";
 
-  let BACKEND = localStorage.getItem('backend_url') || 'http://localhost:5005';
+  // Detección e inicialización dinámica de la IP del Servidor
+  function getInitialBackendURL() {
+    const savedUrl = localStorage.getItem('backend_url');
+    if (savedUrl && !savedUrl.includes('localhost')) {
+      return savedUrl;
+    }
+    // Si la IP de la ventana/dispositivo no es localhost, usa la subred actual del dispositivo
+    const currentHost = window.location.hostname;
+    if (currentHost && currentHost !== 'localhost' && currentHost !== '127.0.0.1') {
+      return `http://${currentHost}:5005`;
+    }
+    return 'http://192.168.1.10:5005';
+  }
+
+  let BACKEND = getInitialBackendURL();
 
   const state = {
     connected: false,
@@ -377,16 +391,51 @@
   }
 
   async function apiCall(path, body){
-    const res = await fetch(BACKEND + path, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body || {}),
-    });
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok){
-      throw new Error(data.error || `Error ${res.status}`);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+    try {
+      const res = await fetch(BACKEND + path, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body || {}),
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok){
+        throw new Error(data.error || `Error ${res.status}`);
+      }
+      return data;
+    } catch(err) {
+      clearTimeout(timeoutId);
+      throw err;
     }
-    return data;
+  }
+
+  /* ---------------- Auto-escaneo de Backend Local ---------------- */
+  async function scanForBackendServer() {
+    const baseIpMatch = BACKEND.match(/http:\/\/(\d+\.\d+\.\d+\.)\d+:5005/);
+    const prefix = baseIpMatch ? baseIpMatch[1] : '192.168.1.';
+    
+    // Probar las IPs del segmento local en segundo plano
+    const promises = [];
+    for (let i = 1; i <= 254; i++) {
+      const testIp = `http://${prefix}${i}:5005`;
+      promises.push(
+        fetch(testIp + '/discover', { signal: AbortSignal.timeout(1500) })
+          .then(res => res.ok ? testIp : null)
+          .catch(() => null)
+      );
+    }
+    const results = await Promise.all(promises);
+    const foundServer = results.find(url => url !== null);
+    if (foundServer) {
+      BACKEND = foundServer;
+      localStorage.setItem('backend_url', foundServer);
+      el('backendInput').value = foundServer;
+      return true;
+    }
+    return false;
   }
 
   /* ---------------- D-pad / botones -> backend real ---------------- */
@@ -417,7 +466,7 @@
         await apiCall('/key', { ip: state.ip, key });
         showToast(key.replace('DPAD_', '').replace('_', ' '));
       } catch(err){
-        showToast('Error: ' + err.message);
+        showToast('Error de conexión con el servidor');
       }
     });
   });
@@ -478,13 +527,26 @@
   el('discoverBtn').addEventListener('click', async () => {
     const btn = el('discoverBtn');
     const results = el('discoverResults');
-    btn.textContent = 'Buscando… (unos segundos)';
+    btn.textContent = 'Buscando servidor y TVs en la red…';
     btn.disabled = true;
     results.classList.add('hidden');
     results.innerHTML = '';
 
     try {
-      const res = await fetch(BACKEND + '/discover');
+      // Primero asegurar que tenemos la IP correcta del backend en la red
+      let res;
+      try {
+        res = await fetch(BACKEND + '/discover', { signal: AbortSignal.timeout(3000) });
+      } catch(e) {
+        showToast('Buscando servidor backend en tu WiFi...');
+        const found = await scanForBackendServer();
+        if (found) {
+          res = await fetch(BACKEND + '/discover');
+        } else {
+          throw new Error('No se encontró el servidor backend.py en tu WiFi.');
+        }
+      }
+
       const data = await res.json();
       const devices = data.devices || [];
 
@@ -505,9 +567,9 @@
         showToast(`Se encontraron ${devices.length} TV(s)`);
       }
     } catch(err){
-      showToast('Error buscando: ' + err.message);
+      showToast(err.message);
     } finally {
-      btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg> Buscar TV en mi red';
+      btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg> Buscar TV / Servidor en mi red';
       btn.disabled = false;
     }
   });
