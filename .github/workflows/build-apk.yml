@@ -17,11 +17,11 @@ jobs:
         with:
           node-version: 22
 
-      - name: Configurar Java JDK 17
+      - name: Configurar Java JDK 21
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
-          java-version: '17'
+          java-version: '21'  # <--- ACTUALIZADO A JAVA 21
 
       - name: Preparar archivos web
         run: |
