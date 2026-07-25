@@ -21,7 +21,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
-          java-version: '21'  # <--- ACTUALIZADO A JAVA 21
+          java-version: '21'
 
       - name: Preparar archivos web
         run: |
@@ -35,11 +35,19 @@ jobs:
           npm install @capacitor/android
           npx cap init ZonaTrialApp com.zonatrial.app --web-dir www
 
-      - name: Empaquetar backend local y proyecto
+      - name: Empaquetar y configurar plataforma Android
         run: |
           rm -rf android
           npx cap add android
           npx cap sync android
+
+      - name: Agregar Permisos de Red al Manifest de Android
+        run: |
+          MANIFEST="android/app/src/main/AndroidManifest.xml"
+          sed -i '/<\/manifest>/i \    <uses-permission android:name="android.permission.INTERNET" />' $MANIFEST
+          sed -i '/<\/manifest>/i \    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />' $MANIFEST
+          sed -i '/<\/manifest>/i \    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />' $MANIFEST
+          sed -i '/<\/manifest>/i \    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />' $MANIFEST
 
       - name: Otorgar permisos a Gradle
         run: chmod +x android/gradlew
